@@ -79,7 +79,11 @@ fi
 # Set the prompt string (PS1)
 # Format: 🕒 HH:MM:SS user@hostname:~/current/path (git_branch) $
 # PS1="${debian_chroot:+($debian_chroot)}🕒 ${COLOR_CYAN}\t${COLOR_RESET} ${COLOR_GREEN}\u@\h${COLOR_RESET}:${COLOR_BLUE}\w${COLOR_RESET} \$ " # Time, User, Host, and Directory
-PS1="${debian_chroot:+($debian_chroot)}🕒 \[${COLOR_CYAN}\]\t\[${COLOR_RESET}\] \[${COLOR_GREEN}\]\u@\h\[${COLOR_RESET}\]:\[${COLOR_BLUE}\]\w\[${COLOR_RESET}\] \$ "
+# PS1="${debian_chroot:+($debian_chroot)}🕒 \[${COLOR_CYAN}\]\t\[${COLOR_RESET}\] \[${COLOR_GREEN}\]\u@\h\[${COLOR_RESET}\]:\[${COLOR_BLUE}\]\w\[${COLOR_RESET}\] \$ "
+# PS1="${debian_chroot:+($debian_chroot)}🕒 \[${COLOR_CYAN}\]\t\[${COLOR_RESET}\] \[${COLOR_GREEN}\]\u@\h\[${COLOR_RESET}\]:\[${COLOR_BLUE}\]\w\[${COLOR_RESET}\] \$ "
+# PS1="\[${debian_chroot:+($debian_chroot)}\]\[🕒\] \[${COLOR_CYAN}\]\t\[${COLOR_RESET}\] \[${COLOR_GREEN}\]\u@\h\[${COLOR_RESET}\]:\[${COLOR_BLUE}\]\w\[${COLOR_RESET}\] \$ "
+# PS1="${debian_chroot:+($debian_chroot)}\[${COLOR_CYAN}\] \t\[${COLOR_RESET}\] \[${COLOR_GREEN}\]\u@\h\[${COLOR_RESET}\]:\[${COLOR_BLUE}\]\w\[${COLOR_RESET}\] \$ "
+PS1="${debian_chroot:+($debian_chroot)}🕒 ${COLOR_CYAN}\t${COLOR_RESET} ${COLOR_GREEN}\u@\h${COLOR_RESET}:${COLOR_BLUE}\w${COLOR_RESET} \$ "
 
 # ---------------------------------------------------------------------------
 # ENVIRONMENT & PATH
@@ -110,6 +114,10 @@ if command -v shopt &>/dev/null; then
     fi
   fi
 fi
+
+# Python cache
+export PYTHONPYCACHEPREFIX="$HOME/.cache/pycache" && [ ! -d "$PYTHONPYCACHEPREFIX" ] && mkdir -p "$PYTHONPYCACHEPREFIX"
+
 
 # Make less more friendly for non-text input files, see lesspipe(1)
 [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
