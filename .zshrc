@@ -27,19 +27,19 @@ export HISTSIZE=10000
 export SAVEHIST=20000
 
 # ==============================================================================
-# COLORS — Variables for prompt and scripts
+# COLORS — Prompt variables (zsh %{...%} wrappers)
 # ==============================================================================
 autoload -U colors && colors
 
-export COLOR_RESET="%{$reset_color%}"
-export COLOR_RED="%{$fg[red]%}"
-export COLOR_GREEN="%{$fg[green]%}"
-export COLOR_YELLOW="%{$fg[yellow]%}"
-export COLOR_BLUE="%{$fg[blue]%}"
-export COLOR_PURPLE="%{$fg[magenta]%}"
-export COLOR_CYAN="%{$fg[cyan]%}"
-export COLOR_WHITE="%{$fg[white]%}"
-export COLOR_GRAY="%{$fg_bold[black]%}"
+export NC="%{$reset_color%}"
+export RED="%{$fg[red]%}"
+export GREEN="%{$fg[green]%}"
+export YELLOW="%{$fg[yellow]%}"
+export BLUE="%{$fg[blue]%}"
+export PURPLE="%{$fg[magenta]%}"
+export CYAN="%{$fg[cyan]%}"
+export WHITE="%{$fg[white]%}"
+export GRAY="%{$fg_bold[black]%}"
 
 # ==============================================================================
 # PROMPT — Generic, overridden in .zshrc_homelab
@@ -54,15 +54,15 @@ fi
 
 # User color: red for admin accounts, green for regular
 if [[ "$USER" == *adm* ]]; then
-    _USER_COLOR="${COLOR_RED}"
+    _USER_COLOR="${RED}"
 else
-    _USER_COLOR="${COLOR_GREEN}"
+    _USER_COLOR="${GREEN}"
 fi
 
 # Hostname in lowercase
 _SHORT_HOST="${HOST:l}"
 
-PROMPT="${COLOR_CYAN}%*${COLOR_RESET} ${_USER_COLOR}${_SHORT_USER}${COLOR_RESET}@${COLOR_BLUE}${_SHORT_HOST}${COLOR_RESET}:${COLOR_CYAN}%~${COLOR_RESET} %# "
+PROMPT="${CYAN}%*${NC} ${_USER_COLOR}${_SHORT_USER}${NC}@${BLUE}${_SHORT_HOST}${NC}:${CYAN}%~${NC} %# "
 
 # ==============================================================================
 # ENVIRONMENT
