@@ -152,6 +152,23 @@ bindkey '^[[A' history-search-backward
 bindkey '^[[B' history-search-forward
 
 # ==============================================================================
+# YADM AUTO-PULL — Sync dotfiles once per day (silent)
+# ==============================================================================
+if command -v yadm &>/dev/null; then
+    mkdir -p "$HOME/.cache"
+    _yadm_state="$HOME/.cache/.yadm_pull_last_run"
+    _yadm_run=true
+    if [[ -f "$_yadm_state" ]]; then
+        _yadm_age=$(( $(date +%s) - $(stat -f %m "$_yadm_state" 2>/dev/null || echo 0) ))
+        (( _yadm_age < 86400 )) && _yadm_run=false
+    fi
+    if [[ "$_yadm_run" == true ]]; then
+        yadm pull --quiet 2>/dev/null && touch "$_yadm_state"
+    fi
+    unset _yadm_state _yadm_age _yadm_run
+fi
+
+# ==============================================================================
 # EXTENSIONS — Machine-specific profiles
 # ==============================================================================
 [ -f ~/.zshrc_homelab ] && source ~/.zshrc_homelab
