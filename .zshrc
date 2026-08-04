@@ -1,0 +1,159 @@
+# ==============================================================================
+# .zshrc — Generic zsh configuration (macOS / Linux)
+# Meant to work standalone on any machine (no dependencies on bootstrap/homelab)
+# ==============================================================================
+
+# ==============================================================================
+# EXIT EARLY — Non-interactive shells
+# ==============================================================================
+[[ $- != *i* ]] && return
+
+# ==============================================================================
+# SHELL OPTIONS
+# ==============================================================================
+setopt APPEND_HISTORY         # Append to history, don't overwrite
+setopt INC_APPEND_HISTORY     # Write to history immediately
+setopt HIST_IGNORE_DUPS       # Ignore duplicate commands
+setopt HIST_IGNORE_SPACE      # Ignore commands starting with space
+setopt HIST_REDUCE_BLANKS     # Remove extra blanks from history
+setopt AUTO_CD                # cd into directory by typing its name
+setopt INTERACTIVE_COMMENTS   # Allow comments in interactive shells
+
+# ==============================================================================
+# HISTORY
+# ==============================================================================
+export HISTFILE="$HOME/.zsh_history"
+export HISTSIZE=10000
+export SAVEHIST=20000
+
+# ==============================================================================
+# COLORS — Variables for prompt and scripts
+# ==============================================================================
+autoload -U colors && colors
+
+export COLOR_RESET="%{$reset_color%}"
+export COLOR_RED="%{$fg[red]%}"
+export COLOR_GREEN="%{$fg[green]%}"
+export COLOR_YELLOW="%{$fg[yellow]%}"
+export COLOR_BLUE="%{$fg[blue]%}"
+export COLOR_PURPLE="%{$fg[magenta]%}"
+export COLOR_CYAN="%{$fg[cyan]%}"
+export COLOR_WHITE="%{$fg[white]%}"
+export COLOR_GRAY="%{$fg_bold[black]%}"
+
+# ==============================================================================
+# PROMPT — Generic, overridden in .zshrc_homelab
+# ==============================================================================
+
+# Short username: if it contains "stephane", display just "stephane"
+if [[ "$USER" == *stephane* ]]; then
+    _SHORT_USER="stephane"
+else
+    _SHORT_USER="$USER"
+fi
+
+# User color: red for admin accounts, green for regular
+if [[ "$USER" == *adm* ]]; then
+    _USER_COLOR="${COLOR_RED}"
+else
+    _USER_COLOR="${COLOR_GREEN}"
+fi
+
+# Hostname in lowercase
+_SHORT_HOST="${HOST:l}"
+
+PROMPT="${COLOR_CYAN}%*${COLOR_RESET} ${_USER_COLOR}${_SHORT_USER}${COLOR_RESET}@${COLOR_BLUE}${_SHORT_HOST}${COLOR_RESET}:${COLOR_CYAN}%~${COLOR_RESET} %# "
+
+# ==============================================================================
+# ENVIRONMENT
+# ==============================================================================
+
+# Locale — Force English messages in terminal
+export LANG="en_US.UTF-8"
+export LC_MESSAGES="en_US.UTF-8"
+
+# Editor — fallback chain: vim.tiny → vim → vi
+if (( $+commands[vim.tiny] )); then
+    export EDITOR=vim.tiny
+    export VISUAL=vim.tiny
+elif (( $+commands[vim] )); then
+    export EDITOR=vim
+    export VISUAL=vim
+else
+    export EDITOR=vi
+    export VISUAL=vi
+fi
+
+# Pager
+export LESS='-R --quiet'
+
+# ==============================================================================
+# PATH
+# ==============================================================================
+[ -d "$HOME/bin" ] && path=("$HOME/bin" $path)
+[ -d "$HOME/.local/bin" ] && path=("$HOME/.local/bin" $path)
+
+# ==============================================================================
+# ALIASES — Colorization
+# ==============================================================================
+# macOS uses BSD ls (no --color), GNU ls uses --color
+if ls --color=auto / &>/dev/null; then
+    alias ls='ls --color=auto'
+else
+    alias ls='ls -G'
+fi
+alias grep='grep --color=auto'
+alias egrep='egrep --color=auto'
+alias fgrep='fgrep --color=auto'
+
+# ==============================================================================
+# ALIASES — Listing (ls, eza, lsd)
+# ==============================================================================
+alias la='ls -A'
+alias ll='ls -alF'
+alias ls-l='ls -l'
+
+if (( $+commands[eza] )); then
+    alias exa='eza -l --icons -a -H'
+    alias e='eza -l --icons -a -H'
+elif (( $+commands[exa] )); then
+    alias exa='exa -l --icons -a -H'
+    alias e='exa -l --icons -a -H'
+else
+    alias exa='ls -l'
+    alias e='ls -l'
+fi
+
+if (( $+commands[lsd] )); then
+    alias l='lsd -la'
+else
+    alias l='ls -CF'
+fi
+
+# ==============================================================================
+# ALIASES — Navigation
+# ==============================================================================
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+
+# ==============================================================================
+# COMPLETION
+# ==============================================================================
+autoload -Uz compinit && compinit -u
+zstyle ':completion:*' menu select
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'  # Case-insensitive completion
+
+# ==============================================================================
+# KEY BINDINGS
+# ==============================================================================
+bindkey -e                          # Emacs key bindings (default macOS behavior)
+bindkey '^[[A' history-search-backward
+bindkey '^[[B' history-search-forward
+
+# ==============================================================================
+# EXTENSIONS — Machine-specific profiles
+# ==============================================================================
+[ -f ~/.zshrc_homelab ] && source ~/.zshrc_homelab
+
+# export CUSTOMER=<client_name>  # Positionner cette variable sur les environnements clients
