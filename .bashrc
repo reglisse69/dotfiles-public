@@ -1,127 +1,164 @@
-# ---------------------------------------------------------------------------
-# EXIT CONDITIONS
-# ---------------------------------------------------------------------------
-# If not running interactively, don't do anything
+# ==============================================================================
+# .bashrc — Generic bash configuration (Linux, all distributions)
+# Meant to work standalone on any machine (no dependencies on bootstrap/homelab)
+# ==============================================================================
+
+# ==============================================================================
+# EXIT EARLY — Non-interactive shells
+# ==============================================================================
 case $- in
     *i*) ;;
       *) return;;
 esac
 
-# ---------------------------------------------------------------------------
-# HISTORY CONTROL
-# ---------------------------------------------------------------------------
+# ==============================================================================
+# SHELL OPTIONS
+# ==============================================================================
+command -v shopt &>/dev/null && shopt -s histappend    # Append to history, don't overwrite
+command -v shopt &>/dev/null && shopt -s checkwinsize  # Update LINES/COLUMNS after each command
+
+# ==============================================================================
+# HISTORY
+# ==============================================================================
 export HISTCONTROL=ignoreboth
 export HISTSIZE=10000
 export HISTFILESIZE=20000
-command -v shopt &>/dev/null && shopt -s histappend
 export PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND$'\n'}history -a; history -c; history -r"
 
-# ---------------------------------------------------------------------------
-# ALIASES
-# ---------------------------------------------------------------------------
-# Enable color support of ls and also add handy aliases
-if [ -x /usr/bin/dircolors ]; then
+# ==============================================================================
+# COLORS — PS1-compatible escape sequences
+# ==============================================================================
+export COLOR_RESET='\[\033[0m\]'
+export COLOR_RED='\[\033[0;31m\]'
+export COLOR_GREEN='\[\033[0;32m\]'
+export COLOR_ORANGE='\[\033[0;33m\]'
+export COLOR_YELLOW='\[\033[0;33m\]'
+export COLOR_BLUE='\[\033[0;34m\]'
+export COLOR_PURPLE='\[\033[0;35m\]'
+export COLOR_CYAN='\[\033[0;36m\]'
+export COLOR_WHITE='\[\033[0;37m\]'
+export COLOR_GRAY='\[\033[1;30m\]'
+
+# ==============================================================================
+# PROMPT — Generic, overridden in .bashrc_homelab
+# ==============================================================================
+
+# Short username: if it contains "stephane", display just "stephane"
+if [[ "$USER" == *stephane* ]]; then
+    _SHORT_USER="stephane"
+else
+    _SHORT_USER="$USER"
+fi
+
+# User color: red for admin accounts, green for regular
+if [[ "$USER" == *adm* ]]; then
+    _USER_COLOR="${COLOR_RED}"
+else
+    _USER_COLOR="${COLOR_GREEN}"
+fi
+
+# Hostname in lowercase
+_SHORT_HOST="$(hostname | tr '[:upper:]' '[:lower:]')"
+
+PS1="${debian_chroot:+($debian_chroot)}${COLOR_CYAN}\t${COLOR_RESET} ${_USER_COLOR}${_SHORT_USER}${COLOR_RESET}@${COLOR_BLUE}${_SHORT_HOST}${COLOR_RESET}:${COLOR_CYAN}\w${COLOR_RESET} \$ "
+
+# ==============================================================================
+# ENVIRONMENT
+# ==============================================================================
+
+# Locale — Force English messages in terminal
+export LANG="en_US.UTF-8"
+export LC_MESSAGES="en_US.UTF-8"
+
+# Editor — fallback chain: vim.tiny → vim → vi
+if command -v vim.tiny &>/dev/null; then
+    export EDITOR=vim.tiny
+    export VISUAL=vim.tiny
+elif command -v vim &>/dev/null; then
+    export EDITOR=vim
+    export VISUAL=vim
+else
+    export EDITOR=vi
+    export VISUAL=vi
+fi
+
+# Pager
+export LESS='-R --quiet'
+
+# ==============================================================================
+# PATH
+# ==============================================================================
+[ -d "$HOME/bin" ] && PATH="$HOME/bin:$PATH"
+[ -d "$HOME/.local/bin" ] && PATH="$HOME/.local/bin:$PATH"
+
+# ==============================================================================
+# ALIASES — Colorization
+# ==============================================================================
+if command -v dircolors &>/dev/null; then
     test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
     alias ls='ls --color=auto'
     alias dir='dir --color=auto'
     alias vdir='vdir --color=auto'
 fi
-# General aliases
 alias grep='grep --color=auto'
 alias egrep='egrep --color=auto'
 alias fgrep='fgrep --color=auto'
-alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
-# Confirmation aliases (prevents accidental deletion/overwriting)
-# alias rm='rm -i'
-# alias cp='cp -i'
-# alias mv='mv -i'
-# 'ls' aliases
+
+# ==============================================================================
+# ALIASES — Listing (ls, eza, lsd)
+# ==============================================================================
 alias la='ls -A'
 alias ll='ls -alF'
 alias ls-l='ls -l'
 alias l.='ls -d .* --color=auto'
-# Set aliases for eza only if it's installed
+
 if command -v eza &>/dev/null; then
-  alias exa='eza -l --icons -a -H'
-  alias e='eza -l --icons -a -H'
+    alias exa='eza -l --icons -a -H'
+    alias e='eza -l --icons -a -H'
 elif command -v exa &>/dev/null; then
-  alias exa='exa -l --icons -a -H'
-  alias e='exa -l --icons -a -H'
+    alias exa='exa -l --icons -a -H'
+    alias e='exa -l --icons -a -H'
 else
-  alias exa='ls -l --color=auto'
-  alias e='ls -l --color=auto'
+    alias exa='ls -l --color=auto'
+    alias e='ls -l --color=auto'
 fi
-# Set alias for lsd only if it's installed
+
 if command -v lsd &>/dev/null; then
-  alias l='lsd -la'
+    alias l='lsd -la'
 else
-  alias l='ls -CF'
+    alias l='ls -CF'
 fi
-# cd aliases
-alias ..='cd ..'
 
-
-# Human-readable output
-alias df='df -h' # disk free
-alias du='du -h' # disk usage
-
-# Quick navigation
+# ==============================================================================
+# ALIASES — Navigation
+# ==============================================================================
 alias ..='cd ..'
 alias ...='cd ../..'
 alias ....='cd ../../..'
 
-# Define colors
-if [ -f ~/.colors ]; then
-  echo "🔄 Loading colors"
-  source ~/.colors
+# ==============================================================================
+# ALIASES — Notifications (desktop only)
+# ==============================================================================
+if command -v notify-send &>/dev/null; then
+    alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
 fi
 
-# Set the prompt string (PS1)
-# Format: 🕒 HH:MM:SS user@hostname:~/current/path (git_branch) $
-# PS1="${debian_chroot:+($debian_chroot)}🕒 ${COLOR_CYAN}\t${COLOR_RESET} ${COLOR_GREEN}\u@\h${COLOR_RESET}:${COLOR_BLUE}\w${COLOR_RESET} \$ " # Time, User, Host, and Directory
-# PS1="${debian_chroot:+($debian_chroot)}🕒 \[${COLOR_CYAN}\]\t\[${COLOR_RESET}\] \[${COLOR_GREEN}\]\u@\h\[${COLOR_RESET}\]:\[${COLOR_BLUE}\]\w\[${COLOR_RESET}\] \$ "
-# PS1="${debian_chroot:+($debian_chroot)}🕒 \[${COLOR_CYAN}\]\t\[${COLOR_RESET}\] \[${COLOR_GREEN}\]\u@\h\[${COLOR_RESET}\]:\[${COLOR_BLUE}\]\w\[${COLOR_RESET}\] \$ "
-# PS1="\[${debian_chroot:+($debian_chroot)}\]\[🕒\] \[${COLOR_CYAN}\]\t\[${COLOR_RESET}\] \[${COLOR_GREEN}\]\u@\h\[${COLOR_RESET}\]:\[${COLOR_BLUE}\]\w\[${COLOR_RESET}\] \$ "
-# PS1="${debian_chroot:+($debian_chroot)}\[${COLOR_CYAN}\] \t\[${COLOR_RESET}\] \[${COLOR_GREEN}\]\u@\h\[${COLOR_RESET}\]:\[${COLOR_BLUE}\]\w\[${COLOR_RESET}\] \$ "
-PS1="${debian_chroot:+($debian_chroot)}🕒 ${COLOR_CYAN}\t${COLOR_RESET} ${COLOR_GREEN}\u@\h${COLOR_RESET}:${COLOR_BLUE}\w${COLOR_RESET} \$ "
-
-# ---------------------------------------------------------------------------
-# ENVIRONMENT & PATH
-# ---------------------------------------------------------------------------
-# Set your preferred editor
-export EDITOR=vim.tiny
-export VISUAL=vim.tiny
-
-# Add a user's local bin directory to the PATH, if it exists
-if [ -d "$HOME/bin" ] ; then
-    PATH="$HOME/bin:$PATH"
-fi
-
-# Add a user's local scripts directory to the PATH, if it exists
-if [ -d "$HOME/.local/bin" ] ; then
-    PATH="$HOME/.local/bin:$PATH"
-fi
-
-# ---------------------------------------------------------------------------
-# BASH COMPLETION & COLORIZATION
-# ---------------------------------------------------------------------------
+# ==============================================================================
+# BASH COMPLETION
+# ==============================================================================
 if command -v shopt &>/dev/null; then
-  if ! shopt -oq posix; then
-    if [ -f /usr/share/bash-completion/bash_completion ]; then
-      . /usr/share/bash-completion/bash_completion
-    elif [ -f /etc/bash_completion ]; then
-      . /etc/bash_completion
+    if ! shopt -oq posix; then
+        if [ -f /usr/share/bash-completion/bash_completion ]; then
+            . /usr/share/bash-completion/bash_completion
+        elif [ -f /etc/bash_completion ]; then
+            . /etc/bash_completion
+        fi
     fi
-  fi
 fi
 
-# Python cache
-export PYTHONPYCACHEPREFIX="$HOME/.cache/pycache" && [ ! -d "$PYTHONPYCACHEPREFIX" ] && mkdir -p "$PYTHONPYCACHEPREFIX"
-
-
-# Make less more friendly for non-text input files, see lesspipe(1)
-[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
-
-# ----- END OF .bashrc -----
+# ==============================================================================
+# EXTENSIONS — Machine-specific profiles
+# ==============================================================================
 [ -f ~/.bashrc_homelab ] && source ~/.bashrc_homelab
 
+# export CUSTOMER=<client_name>  # Positionner cette variable sur les environnements clients
