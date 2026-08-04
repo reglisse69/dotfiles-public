@@ -28,16 +28,16 @@ export PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND$'\n'}history -a; histor
 # ==============================================================================
 # COLORS — PS1-compatible escape sequences
 # ==============================================================================
-export COLOR_RESET='\[\033[0m\]'
-export COLOR_RED='\[\033[0;31m\]'
-export COLOR_GREEN='\[\033[0;32m\]'
-export COLOR_ORANGE='\[\033[0;33m\]'
-export COLOR_YELLOW='\[\033[0;33m\]'
-export COLOR_BLUE='\[\033[0;34m\]'
-export COLOR_PURPLE='\[\033[0;35m\]'
-export COLOR_CYAN='\[\033[0;36m\]'
-export COLOR_WHITE='\[\033[0;37m\]'
-export COLOR_GRAY='\[\033[1;30m\]'
+export NC='\[\033[0m\]'
+export RED='\[\033[0;31m\]'
+export GREEN='\[\033[0;32m\]'
+export ORANGE='\[\033[0;33m\]'
+export YELLOW='\[\033[0;33m\]'
+export BLUE='\[\033[0;34m\]'
+export PURPLE='\[\033[0;35m\]'
+export CYAN='\[\033[0;36m\]'
+export WHITE='\[\033[0;37m\]'
+export GRAY='\[\033[1;30m\]'
 
 # ==============================================================================
 # PROMPT — Generic, overridden in .bashrc_homelab
@@ -52,15 +52,15 @@ fi
 
 # User color: red for admin accounts, green for regular
 if [[ "$USER" == *adm* ]]; then
-    _USER_COLOR="${COLOR_RED}"
+    _USER_COLOR="${RED}"
 else
-    _USER_COLOR="${COLOR_GREEN}"
+    _USER_COLOR="${GREEN}"
 fi
 
 # Hostname in lowercase
 _SHORT_HOST="$(hostname | tr '[:upper:]' '[:lower:]')"
 
-PS1="${debian_chroot:+($debian_chroot)}${COLOR_CYAN}\t${COLOR_RESET} ${_USER_COLOR}${_SHORT_USER}${COLOR_RESET}@${COLOR_BLUE}${_SHORT_HOST}${COLOR_RESET}:${COLOR_CYAN}\w${COLOR_RESET} \$ "
+PS1="${debian_chroot:+($debian_chroot)}${CYAN}\t${NC} ${_USER_COLOR}${_SHORT_USER}${NC}@${BLUE}${_SHORT_HOST}${NC}:${CYAN}\w${NC} \$ "
 
 # ==============================================================================
 # ENVIRONMENT
