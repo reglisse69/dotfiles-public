@@ -163,7 +163,8 @@ if command -v yadm &>/dev/null; then
         (( _yadm_age < 86400 )) && _yadm_run=false
     fi
     if [[ "$_yadm_run" == true ]]; then
-        yadm pull --quiet 2>/dev/null && touch "$_yadm_state"
+        # Run in background with timeout to avoid blocking shell startup
+        ( timeout 10 yadm pull --quiet 2>/dev/null && touch "$_yadm_state" ) &!
     fi
     unset _yadm_state _yadm_age _yadm_run
 fi
