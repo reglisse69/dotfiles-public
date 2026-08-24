@@ -175,3 +175,4 @@ fi
 [ -f ~/.zshrc_homelab ] && source ~/.zshrc_homelab
 
 # export CUSTOMER=<client_name>  # Positionner cette variable sur les environnements clients
+
