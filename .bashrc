@@ -210,6 +210,16 @@ apt() {
     command apt "$@"
 }
 
+# NALA wrapper
+nala() {
+    case "$1" in
+        upgrade)
+            _check_mux_session || return 1
+            ;;
+    esac
+    command nala "$@"
+}
+
 # DNF wrapper
 dnf() {
     case "$1" in
