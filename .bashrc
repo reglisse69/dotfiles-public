@@ -178,26 +178,28 @@ fi
 # TMUX / SCREEN WRAPPER - Guard against running upgrades outside detached session
 # ==============================================================================
 _check_mux_session() {
-    # Skip check if already inside tmux or screen
-    if [ -n "$TMUX" ] \vert{}\vert{} [ -n "$STY" ]; then
-        return 0
-    fi
+    # Return immediately if already inside tmux or screen
+    case "${TMUX}${STY}" in
+        ?*) return 0 ;;
+    esac
 
-    # Trigger only when running over SSH
-    if [ -n "$SSH_CONNECTION" ] || [ -n "$SSH_CLIENT" ] \vert{}\vert{} [ -n "$SSH_TTY" ]; then
-        printf "\n\033[1;33m[WARNING]\033[0m You are not running inside a tmux/screen session!\n"
-        read -r -p "Proceed anyway without a detached session? [y/N] " response
-        case "$response" in
-            [yY][eE][sS]|[yY])
-                return 0
-                ;;
-            *)
-                printf "Aborted. Launch \`tmux\` or \`screen\` first.\n\n"
-                return 1
-                ;;
-        esac
-    fi
-    return 0
+    # Allow if running locally (all SSH variables empty)
+    case "${SSH_CONNECTION}${SSH_CLIENT}${SSH_TTY}" in
+        "") return 0 ;;
+    esac
+
+    # Prompt warning over SSH
+    printf "\n\033[1;33m[WARNING]\033[0m You are not running inside a tmux/screen session!\n"
+    read -r -p "Proceed anyway without a detached session? [y/N] " response
+    case "$response" in
+        [yY]|[yY][eE][sS])
+            return 0
+            ;;
+        *)
+            printf "Aborted. Launch \`tmux\` or \`screen\` first.\n\n"
+            return 1
+            ;;
+    esac
 }
 
 # APT wrapper
