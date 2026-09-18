@@ -178,17 +178,12 @@ fi
 # TMUX / SCREEN WRAPPER - Guard against running upgrades outside detached session
 # ==============================================================================
 _check_mux_session() {
-    # Return immediately if already inside tmux or screen
+    # Skip check if already inside tmux or screen
     case "${TMUX}${STY}" in
         ?*) return 0 ;;
     esac
 
-    # Allow if running locally (all SSH variables empty)
-    case "${SSH_CONNECTION}${SSH_CLIENT}${SSH_TTY}" in
-        "") return 0 ;;
-    esac
-
-    # Prompt warning over SSH
+    # Prompt warning
     printf "\n\033[1;33m[WARNING]\033[0m You are not running inside a tmux/screen session!\n"
     read -r -p "Proceed anyway without a detached session? [y/N] " response
     case "$response" in
