@@ -175,8 +175,55 @@ if command -v yadm &>/dev/null; then
 fi
 
 # ==============================================================================
+# TMUX / SCREEN WRAPPER - Guard against running upgrades outside detached session
+# ==============================================================================
+_check_mux_session() {
+    # Skip check if already inside tmux or screen
+    if [ -n "$TMUX" ] \vert{}\vert{} [ -n "$STY" ]; then
+        return 0
+    fi
+
+    # Trigger only when running over SSH
+    if [ -n "$SSH_CONNECTION" ] \vert{}\vert{} [ -n "$SSH_TTY" ]; then
+        printf "\n\033[1;33m[WARNING]\033[0m You are not running inside a tmux/screen session!\n"
+        read -r -p "Proceed anyway without a detached session? [y/N] " response
+        case "$response" in
+            [yY][eE][sS]|[yY])
+                return 0
+                ;;
+            *)
+                printf "Aborted. Launch \`tmux\` or \`screen\` first.\n\n"
+                return 1
+                ;;
+        esac
+    fi
+    return 0
+}
+
+# APT wrapper
+apt() {
+    case "$1" in
+        upgrade|dist-upgrade|full-upgrade)
+            _check_mux_session || return 1
+            ;;
+    esac
+    command apt "$@"
+}
+
+# DNF wrapper
+dnf() {
+    case "$1" in
+        upgrade|update|system-upgrade)
+            _check_mux_session || return 1
+            ;;
+    esac
+    command dnf "$@"
+}
+
+# ==============================================================================
 # EXTENSIONS — Machine-specific profiles
 # ==============================================================================
 [ -f ~/.bashrc_homelab ] && source ~/.bashrc_homelab
+
 
 # export CUSTOMER=<client_name>  # Positionner cette variable sur les environnements clients
