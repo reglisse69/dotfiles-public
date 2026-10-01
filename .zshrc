@@ -52,8 +52,8 @@ else
     _SHORT_USER="$USER"
 fi
 
-# User color: red for admin accounts, green for regular
-if [[ "$USER" == *adm* ]]; then
+# User color: red for root and admin accounts, green for regular
+if [[ "$USER" == *adm* || "$USER" == "root" ]]; then
     _USER_COLOR="${RED}"
 else
     _USER_COLOR="${GREEN}"
