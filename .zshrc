@@ -52,9 +52,11 @@ else
     _SHORT_USER="$USER"
 fi
 
-# User color: red for root and admin accounts, green for regular
+# User color: red for root and admin accounts, cyan for centreon, green for regular
 if [[ "$USER" == *adm* || "$USER" == "root" ]]; then
     _USER_COLOR="${RED}"
+elif [[ "$USER" == centreon* ]]; then
+    _USER_COLOR="${CYAN}"
 else
     _USER_COLOR="${GREEN}"
 fi
