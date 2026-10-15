@@ -94,6 +94,14 @@ export LESS='-R --quiet'
 # ==============================================================================
 [ -d "$HOME/bin" ] && path=("$HOME/bin" $path)
 [ -d "$HOME/.local/bin" ] && path=("$HOME/.local/bin" $path)
+[ -d "$HOME/.cargo/bin" ] && path=("$HOME/.cargo/bin" $path)
+
+# Homebrew (macOS / Linux)
+if [[ -x /opt/homebrew/bin/brew ]]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+elif [[ -x /home/linuxbrew/.linuxbrew/bin/brew ]]; then
+    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+fi
 
 # ==============================================================================
 # ALIASES — Colorization
